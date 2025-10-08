@@ -30,6 +30,13 @@ spec:
                     revision: main
                     files:
                       - path: "clusters/dir/dev/cluster-config.json"
+          - matrix:
+              generators:
+                - list:
+                    elements:
+                      - appName: dir
+                      - appName: spire
+                      - appName: spire-crds
                 - git:
                     repoURL: "https://github.com/ramizpolic/dir-deploy"
                     revision: main
