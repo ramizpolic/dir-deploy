@@ -4,9 +4,9 @@ global:
   spire:
     trustDomain: "example.org"
 
-  tools:
-    kubectl:
-      tag: "v1.28.0"
+    tools:
+      kubectl:
+        tag: "v1.28.0"
 
 spire-server:
   federation:
