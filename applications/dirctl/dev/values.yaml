@@ -1,0 +1,160 @@
+# Example configuration with multiple cronjobs
+# This demonstrates how to configure multiple dirctl cronjobs
+
+# Global config
+global:
+  cronjob:
+    failedJobsHistoryLimit: 10
+    successfulJobsHistoryLimit: 10
+    concurrencyPolicy: "Forbid"
+
+# Image config
+image:
+  repository: ghcr.io/agntcy/dir-ctl
+  tag: latest
+  pullPolicy: IfNotPresent
+  pullSecrets: []
+
+# CronJobs configuration
+cronjobs:
+  # Search cronjob
+  search:
+    enabled: true
+    schedule: "* * * * *"
+    args:
+      - "search"
+
+  # Lookup cronjob
+  lookup:
+    enabled: true
+    schedule: "* * * * *"
+    args:
+      - "info"
+      - "baeareiglp6uzpr2z5jg4qynvubgp55ucyldcnklzwbj7olgc4pn6e2vyau"
+
+  # Push cronjob
+  push:
+    enabled: true
+    schedule: "* * * * *"
+    args:
+      - "push"
+      - "/examples/record.json"
+    volumes:
+      - name: record-json
+        configMap:
+          name: example-record
+          items:
+            - key: record.json
+              path: examples/record.json
+    volumeMounts:
+      - name: record-json
+        mountPath: /examples/record.json
+        subPath: examples/record.json
+        readOnly: true
+
+# SPIRE configuration
+spire:
+  enabled: true
+  trustDomain: example.org
+  federation: []
+    # # Config: https://github.com/spiffe/spire-controller-manager/blob/main/docs/clusterfederatedtrustdomain-crd.md
+    # - trustDomain: dir-cluster
+    #   bundleEndpointURL: https://0.0.0.0:8081
+    #   bundleEndpointProfile:
+    #     type: https_web
+
+# Config maps config (shared across all cronjobs)
+configMaps:
+  - name: example-record
+    data:
+      record.json: |
+        {
+          "name": "directory.agntcy.org/cisco/marketing-strategy-v3",
+          "version": "v3.0.0",
+          "schema_version": "v0.7.0",
+          "description": "Research agent for Cisco's marketing strategy.",
+          "authors": [
+            "Cisco Systems"
+          ],
+          "created_at": "2025-03-19T17:06:37Z",
+          "annotations": {
+            "key": "value"
+          },
+          "skills": [
+            {
+              "name": "natural_language_processing/natural_language_generation/text_completion",
+              "id": 10201
+            },
+            {
+              "name": "natural_language_processing/analytical_reasoning/problem_solving",
+              "id": 10702
+            }
+          ],
+          "locators": [
+            {
+              "type": "docker_image",
+              "url": "https://ghcr.io/agntcy/marketing-strategy"
+            }
+          ],
+          "domains": [
+            {
+              "name": "life_science/biotechnology"
+            }
+          ],
+          "modules": [
+            {
+              "name": "license",
+              "data": {
+                "header": "Copyright (c) 2025 Cisco and/or its affiliates.",
+                "license": "Apache-2.0"
+              }
+            },
+            {
+              "name": "runtime/framework",
+              "data": {
+                "name": "crewai",
+                "version": "0.55.2"
+              }
+            },
+            {
+              "name": "runtime/language",
+              "data": {
+                "type": "python",
+                "version": "\u003e=3.11,\u003c3.13"
+              }
+            }
+          ]
+        }
+
+
+# Service account config
+serviceAccount:
+  create: false
+  annotations: {}
+  name: ""
+
+# Security context
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 65532
+  readOnlyRootFilesystem: true
+
+# Default resource configuration (can be overridden per cronjob)
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 50m
+    memory: 64Mi
+
+# Additional environment variables (applied to all cronjobs)
+env:
+  - name: DIRECTORY_CLIENT_SERVER_ADDRESS
+    value: dir-dev-dir-argoapp-apiserver.dir-dev.svc.cluster.local:8888
+
+# Default volumes (can be extended per cronjob)
+volumes: []
+
+# Default volume mounts (can be extended per cronjob)
+volumeMounts: []

@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: "multi-component-dev-appset"
+  name: "dir-dev-appset"
 spec:
   syncPolicy:
     preserveResourcesOnDeletion: false
@@ -21,6 +21,9 @@ spec:
                 - appName: dir
                   namespace: dir-dev
                   syncWave: "2"
+                - appName: dirctl
+                  namespace: dirctl-dev
+                  syncWave: "3"
           - matrix:
               generators:
                 - list:
@@ -28,6 +31,7 @@ spec:
                       - appName: spire-crds
                       - appName: spire
                       - appName: dir
+                      - appName: dirctl
                 - git:
                     repoURL: "https://github.com/ramizpolic/dir-deploy"
                     revision: main
@@ -40,6 +44,7 @@ spec:
                       - appName: spire-crds
                       - appName: spire
                       - appName: dir
+                      - appName: dirctl
                 - git:
                     repoURL: "https://github.com/ramizpolic/dir-deploy"
                     revision: main
