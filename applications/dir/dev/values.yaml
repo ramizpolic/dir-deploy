@@ -3,9 +3,8 @@ apiserver:
     repository: ghcr.io/agntcy/dir-apiserver
     tag: latest
     pullPolicy: IfNotPresent
-    pullSecrets:
-      - name: regcred
-
+    pullSecrets: []
+  
   service:
     type: NodePort
 
@@ -28,7 +27,7 @@ apiserver:
         # cache_dir: ""
 
         # Registry address to connect to
-        registry_address: "dir-zot.dir-server.svc.cluster.local:5000"
+        registry_address: "dir-dev-dir-argoapp-zot.dir-dev.svc.cluster.local:5000"
         # All data will be stored under this repo.
         # Objects are pushed as tags, manifests, and blobs.
         # repository_name: ""
@@ -36,11 +35,11 @@ apiserver:
         # Auth credentials to use.
         auth_config:
           insecure: "true"
-          access_token: access-token
-          refresh_token: refresh-token
+          username: "admin"
+          password: "admin"
 
     # Routing settings for the peer-to-peer network.
-    routing: {}
+    routing:
       # Address to use for routing
       # listen_address: "/ipv4/0.0.0.0/tcp/5555"
 
@@ -54,6 +53,33 @@ apiserver:
       #   - /ip4/1.1.1.1/tcp/1
       #   - /ip4/1.1.1.1/tcp/2
 
+      # GossipSub configuration for efficient label announcements
+      # When enabled, labels are propagated via GossipSub mesh to ALL subscribed peers
+      # When disabled, falls back to DHT+Pull mechanism (higher bandwidth, limited reach)
+      # Default: true (recommended for production)
+      gossipsub:
+        enabled: true
+
+    # Sync configuration
+    sync:
+      # How frequently the scheduler checks for pending syncs
+      scheduler_interval: "30s"
+      
+      # Maximum number of sync workers running concurrently
+      worker_count: 1
+      
+      # Timeout for individual sync operations
+      worker_timeout: "10m"
+      
+      # Registry monitor configuration
+      registry_monitor:
+        check_interval: "30s"
+      
+      # Authentication configuration for sync operations
+      auth_config:
+        username: "user"
+        password: "user"
+
     # Publication configuration
     publication:
       # How frequently the scheduler checks for pending publications
@@ -64,9 +90,10 @@ apiserver:
       
       # Timeout for individual publication operations
       worker_timeout: "30m"
+
   # SPIRE configuration
   spire:
-    enabled: false
+    enabled: true
     trustDomain: example.org
     federation: []
       # # Config: https://github.com/spiffe/spire-controller-manager/blob/main/docs/clusterfederatedtrustdomain-crd.md
@@ -89,23 +116,64 @@ apiserver:
 
   # Zot registry configuration (subchart)
   zot:
-    # Disable default config mounting to use shared volume
-    mountConfig: false
-    mountSecret: false
-    
-    # Share the same volume with apiserver for hot reload
-    extraVolumeMounts:
-      - name: zot-config-storage
-        mountPath: /etc/zot
-    
-    # Use the same hostPath for true volume sharing
-    extraVolumes:
-      - name: zot-config-storage
-        hostPath:
-          path: /opt/zot-config
-          type: DirectoryOrCreate
+    authHeader: "admin:admin"
+    extraVolumeMounts: []
+    extraVolumes: []
     
     # Configure zot to use the config file from the shared mounted volume
-    extraArgs:
-      - "serve"
-      - "/etc/zot/config.json"
+    # extraArgs:
+    #   - "serve"
+    #   - "/etc/zot/config.json"
+
+    # ZOT secrets
+    mountSecret: true
+    secretFiles:
+      # Example htpasswd with 'admin:admin' & 'user:user' user:pass pairs
+      htpasswd: |-
+        admin:$2y$05$vmiurPmJvHylk78HHFWuruFFVePlit9rZWGA/FbZfTEmNRneGJtha
+        user:$2y$05$L86zqQDfH5y445dcMlwu6uHv.oXFgT6AiJCwpv3ehr7idc0rI3S2G
+  
+    # Zot config
+    mountConfig: true
+    configFiles:
+      config.json: |-
+        {
+          "distSpecVersion": "1.1.1",
+          "storage": {
+            "rootDirectory": "/var/lib/registry"
+          },
+          "http": {
+            "address": "0.0.0.0",
+            "port": "5000",
+            "auth": {
+              "htpasswd": {
+                "path": "/secret/htpasswd"
+              }
+            },
+            "accessControl": {
+              "adminPolicy": {
+                  "users": ["admin"],
+                  "actions": ["read", "create", "update", "delete"]
+              },
+              "repositories": {
+                "**": {
+                  "anonymousPolicy": [],
+                  "defaultPolicy": ["read"]
+                }
+              }
+            }
+          },
+          "log": {
+            "level": "info"
+          },
+          "extensions": {
+            "search": {
+              "enable": true
+            },
+            "trust": {
+              "enable": true,
+              "cosign": true,
+              "notation": false
+            }
+          }
+        }

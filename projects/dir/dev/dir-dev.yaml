@@ -20,6 +20,6 @@ spec:
     kind: '*'
   sourceRepos:
   - https://github.com/ramizpolic/dir-deploy
-  - https://chartmuseum.prod.eticloud.io
+  - https://spiffe.github.io/helm-charts-hardened
   - ghcr.io
 status: {}
