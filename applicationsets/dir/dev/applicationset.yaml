@@ -30,7 +30,7 @@ spec:
                 - path: "applications/{{ appName }}/dev/config.json"
   template:
     metadata:
-      name: "{{ appName }}-dev-argoapp"
+      name: "dir-dev-{{ appName }}-argoapp"
       labels:
         env: "dev"
         app: "{{ appName }}"
