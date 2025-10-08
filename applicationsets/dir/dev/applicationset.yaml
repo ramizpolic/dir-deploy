@@ -2,9 +2,11 @@ apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
   name: "multi-component-dev-appset"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
 spec:
   syncPolicy:
-    preserveResourcesOnDeletion: true
+    preserveResourcesOnDeletion: false
   generators:
     - merge:
         mergeKeys:
@@ -12,19 +14,22 @@ spec:
         generators:
           - list:
               elements:
-                - appName: dir
-                  namespace: dir-dev
-                - appName: spire
-                  namespace: spire
                 - appName: spire-crds
                   namespace: spire-crds
+                  syncWave: "0"
+                - appName: spire
+                  namespace: spire
+                  syncWave: "1"
+                - appName: dir
+                  namespace: dir-dev
+                  syncWave: "2"
           - matrix:
               generators:
                 - list:
                     elements:
-                      - appName: dir
-                      - appName: spire
                       - appName: spire-crds
+                      - appName: spire
+                      - appName: dir
                 - git:
                     repoURL: "https://github.com/ramizpolic/dir-deploy"
                     revision: main
@@ -34,9 +39,9 @@ spec:
               generators:
                 - list:
                     elements:
-                      - appName: dir
-                      - appName: spire
                       - appName: spire-crds
+                      - appName: spire
+                      - appName: dir
                 - git:
                     repoURL: "https://github.com/ramizpolic/dir-deploy"
                     revision: main
@@ -48,6 +53,12 @@ spec:
       labels:
         env: "dev"
         app: "{{ appName }}"
+      annotations:
+        argocd.argoproj.io/sync-wave: "{{ syncWave }}"
+        argocd.argoproj.io/finalizer: resources-finalizer.argocd.argoproj.io
+        argocd.argoproj.io/cascade: "foreground"
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
     spec:
       project: "dir-dev"
       sources:
@@ -66,6 +77,11 @@ spec:
         namespace: "{{ namespace }}"
       syncPolicy:
         automated:
-          prune: false
+          prune: true
+          selfHeal: true
         syncOptions:
           - CreateNamespace=true
+          - ServerSideApply=true
+          - RespectIgnoreDifferences=true
+          - PrunePropagationPolicy=foreground
+          - PruneLast=true
