@@ -6,21 +6,27 @@ spec:
   syncPolicy:
     preserveResourcesOnDeletion: true
   generators:
-    ## Use merge generator to merge the configurations from different sources into a single object
     - merge:
         mergeKeys:
           - appName
         generators:
-          ## Application configs
-          - list:
-              elements:
-                - appName: dir
-                  namespace: dir-dev
-                - appName: spire
-                  namespace: spire
-                - appName: spire-crds
-                  namespace: spire-crds
-          ## Application Charts
+          # First generator: app list with cluster config
+          - matrix:
+              generators:
+                - list:
+                    elements:
+                      - appName: dir
+                        namespace: dir-dev
+                      - appName: spire
+                        namespace: spire
+                      - appName: spire-crds
+                        namespace: spire-crds
+                - git:
+                    repoURL: "https://github.com/ramizpolic/dir-deploy"
+                    revision: main
+                    files:
+                      - path: "clusters/dir/dev/cluster-config.json"
+          # Second generator: individual app configs
           - git:
               repoURL: "https://github.com/ramizpolic/dir-deploy"
               revision: main
@@ -42,28 +48,6 @@ spec:
                 - path: "applications/spire-crds/dev/config.json"
               values:
                 appName: "spire-crds"
-          ## Cluster Configurations
-          - git:
-              repoURL: "https://github.com/ramizpolic/dir-deploy"
-              revision: main
-              files:
-                - path: "clusters/dir/dev/cluster-config.json"
-              values:
-                appName: "dir"
-          - git:
-              repoURL: "https://github.com/ramizpolic/dir-deploy"
-              revision: main
-              files:
-                - path: "clusters/dir/dev/cluster-config.json"
-              values:
-                appName: "spire"
-          - git:
-              repoURL: "https://github.com/ramizpolic/dir-deploy"
-              revision: main
-              files:
-                - path: "clusters/dir/dev/cluster-config.json"
-              values:
-                appName: "spire-crds"
   template:
     metadata:
       name: "{{ appName }}-dev-argoapp"
@@ -73,8 +57,8 @@ spec:
     spec:
       project: "dir-dev"
       sources:
-        - repoURL: "{{chart_repo}}"
-          chart: "{{chart_name}}"
+        - repoURL: "{{ chart_repo }}"
+          chart: "{{ chart_name }}"
           targetRevision: "{{ chart_version }}"
           helm:
             ignoreMissingValueFiles: true
