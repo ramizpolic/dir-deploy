@@ -1,0 +1,111 @@
+apiserver:
+  image:
+    repository: ghcr.io/agntcy/dir-apiserver
+    tag: latest
+    pullPolicy: IfNotPresent
+    pullSecrets:
+      - name: regcred
+
+  service:
+    type: NodePort
+
+  config:
+    # listen_address: "0.0.0.0:8888"
+    # healthcheck_address: "0.0.0.0:8889"
+
+    # Store settings for the storage backend.
+    store:
+      # Storage provider to use.
+      provider: "oci"
+
+      # OCI-backed store
+      oci:
+        # Path to a local directory that will be to hold data instead of remote.
+        # If this is set to non-empty value, only local store will be used.
+        # local_dir: ""
+
+        # Cache directory to use for metadata.
+        # cache_dir: ""
+
+        # Registry address to connect to
+        registry_address: "dir-zot.dir-server.svc.cluster.local:5000"
+        # All data will be stored under this repo.
+        # Objects are pushed as tags, manifests, and blobs.
+        # repository_name: ""
+
+        # Auth credentials to use.
+        auth_config:
+          insecure: "true"
+          access_token: access-token
+          refresh_token: refresh-token
+
+    # Routing settings for the peer-to-peer network.
+    routing: {}
+      # Address to use for routing
+      # listen_address: "/ipv4/0.0.0.0/tcp/5555"
+
+      # Path to private key file for peer ID.
+      # key_path: /tmp/agntcy-dir/node.privkey
+
+      # Nodes to use for bootstrapping of the DHT.
+      # We read initial routing tables here and get introduced
+      # to the network.
+      # bootstrap_peers:
+      #   - /ip4/1.1.1.1/tcp/1
+      #   - /ip4/1.1.1.1/tcp/2
+
+    # Publication configuration
+    publication:
+      # How frequently the scheduler checks for pending publications
+      scheduler_interval: "1h"
+      
+      # Maximum number of publication workers running concurrently
+      worker_count: 1
+      
+      # Timeout for individual publication operations
+      worker_timeout: "30m"
+  # SPIRE configuration
+  spire:
+    enabled: false
+    trustDomain: example.org
+    federation: []
+      # # Config: https://github.com/spiffe/spire-controller-manager/blob/main/docs/clusterfederatedtrustdomain-crd.md
+      # - trustDomain: dir-cluster
+      #   bundleEndpointURL: https://0.0.0.0:8081
+      #   bundleEndpointProfile:
+      #     type: https_web
+
+  # Extra volume mounts for the apiserver container
+  extraVolumeMounts: 
+  - name: zot-config-storage
+    mountPath: /etc/zot
+
+  # Extra volumes - shared between apiserver and zot for config hot reload
+  extraVolumes: 
+  - name: zot-config-storage
+    hostPath:
+      path: /opt/zot-config
+      type: DirectoryOrCreate
+
+  # Zot registry configuration (subchart)
+  zot:
+    # Disable default config mounting to use shared volume
+    mountConfig: false
+    mountSecret: false
+    
+    # Share the same volume with apiserver for hot reload
+    extraVolumeMounts:
+      - name: zot-config-storage
+        mountPath: /etc/zot
+    
+    # Use the same hostPath for true volume sharing
+    extraVolumes:
+      - name: zot-config-storage
+        hostPath:
+          path: /opt/zot-config
+          type: DirectoryOrCreate
+    
+    # Configure zot to use the config file from the shared mounted volume
+    extraArgs:
+      - "serve"
+      - "/etc/zot/config.json"

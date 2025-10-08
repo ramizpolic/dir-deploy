@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: dir-dev
+  namespace: argocd
+spec:
+  clusterResourceWhitelist:
+  - group: '*'
+    kind: '*'
+  description: dir dev deployment
+  destinations:
+  - name: '*'
+    namespace: dir-dev
+    server: https://127.0.0.1:53943
+  - name: '*'
+    namespace: argocd
+    server: https://kubernetes.default.svc
+  namespaceResourceWhitelist:
+  - group: '*'
+    kind: '*'
+  sourceRepos:
+  - https://github.com/ramizpolic/dir-deploy
+  - https://chartmuseum.prod.eticloud.io
+  - ghcr.io
+status: {}

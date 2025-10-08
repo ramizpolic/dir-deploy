@@ -1,0 +1,4 @@
+{
+  "cluster_name": "local-kind-prod",
+  "cluster_address": "https://127.0.0.1:53943"
+}
