@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: "dir-dev-appset"
+  name: "dir-appset"
 spec:
   syncPolicy:
     preserveResourcesOnDeletion: false
@@ -19,10 +19,10 @@ spec:
                   namespace: spire
                   syncWave: "1"
                 - appName: dir
-                  namespace: dir-dev
+                  namespace: dir
                   syncWave: "2"
                 - appName: dirctl
-                  namespace: dirctl-dev
+                  namespace: dirctl
                   syncWave: "3"
           - matrix:
               generators:
@@ -36,7 +36,7 @@ spec:
                     repoURL: "https://github.com/ramizpolic/dir-deploy"
                     revision: main
                     files:
-                      - path: "clusters/dir/dev/cluster-config.json"
+                      - path: "clusters/dir/cluster-config.json"
           - matrix:
               generators:
                 - list:
@@ -49,17 +49,16 @@ spec:
                     repoURL: "https://github.com/ramizpolic/dir-deploy"
                     revision: main
                     files:
-                      - path: "applications/{{ appName }}/dev/config.json"
+                      - path: "applications/{{ appName }}/config.json"
   template:
     metadata:
-      name: "dir-dev-{{ appName }}-argoapp"
+      name: "dir-appset-{{ appName }}"
       labels:
-        env: "dev"
         app: "{{ appName }}"
       annotations:
         argocd.argoproj.io/sync-wave: "{{ syncWave }}"
     spec:
-      project: "dir-dev"
+      project: "dir"
       sources:
         - repoURL: "{{ chart_repo }}"
           chart: "{{ chart_name }}"
@@ -67,7 +66,7 @@ spec:
           helm:
             ignoreMissingValueFiles: true
             valueFiles:
-              - "$values/applications/{{ appName }}/dev/values.yaml"
+              - "$values/applications/{{ appName }}/values.yaml"
         - repoURL: "https://github.com/ramizpolic/dir-deploy"
           targetRevision: main
           ref: values
@@ -83,9 +82,3 @@ spec:
           - ServerSideApply=true
           - SkipDryRunOnMissingResource=true
           - RespectIgnoreDifferences=true
-        retry:
-          limit: 5
-          backoff:
-            duration: 5s
-            factor: 2
-            maxDuration: 3m

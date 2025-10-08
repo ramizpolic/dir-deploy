@@ -151,7 +151,7 @@ resources:
 # Additional environment variables (applied to all cronjobs)
 env:
   - name: DIRECTORY_CLIENT_SERVER_ADDRESS
-    value: dir-dev-dir-argoapp-apiserver.dir-dev.svc.cluster.local:8888
+    value: dir-appset-dir-apiserver.dir.svc.cluster.local:8888
 
 # Default volumes (can be extended per cronjob)
 volumes: []

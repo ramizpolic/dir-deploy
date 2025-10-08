@@ -1,16 +1,16 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: "dir-dev-projectapp"
+  name: "dir-app"
   namespace: argocd
 spec:
+  project: "dir"
+  source:
+    path: "applicationsets/dir"
+    repoURL: "https://github.com/ramizpolic/dir-deploy.git"
+    targetRevision: main
   destination:
     namespace: argocd
     server: https://kubernetes.default.svc
-  project: "dir-dev"
-  source:
-    path: "applicationsets/dir/dev"
-    repoURL: "https://github.com/ramizpolic/dir-deploy.git"
-    targetRevision: main
   syncPolicy:
     automated: {}
