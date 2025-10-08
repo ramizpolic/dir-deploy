@@ -10,24 +10,33 @@ spec:
     - merge:
         mergeKeys:
           - values.selector
+          - values.appName
         generators:
-          ## Application configs
-          - list:
-              elements:
-                - appName: dir
-                  namespace: dir-dev
-                - appName: spire
-                  namespace: spire
-                - appName: spire-crds
-                  namespace: spire-crds
           ## Application Charts
           - git:
               repoURL: "https://github.com/ramizpolic/dir-deploy"
               revision: main
               files:
-                - path: "applications/{{ appName }}/dev/**/config.json"
+                - path: "applications/dir/dev/**/config.json"
               values:
                 selector: "{{ path.basename }}"
+                appName: "dir"
+          - git:
+              repoURL: "https://github.com/ramizpolic/dir-deploy"
+              revision: main
+              files:
+                - path: "applications/spire/dev/**/config.json"
+              values:
+                selector: "{{ path.basename }}"
+                appName: "spire"
+          - git:
+              repoURL: "https://github.com/ramizpolic/dir-deploy"
+              revision: main
+              files:
+                - path: "applications/spire-crds/dev/**/config.json"
+              values:
+                selector: "{{ path.basename }}"
+                appName: "spire-crds"
           ## Cluster Configurations
           - git:
               repoURL: "https://github.com/ramizpolic/dir-deploy"
@@ -36,13 +45,30 @@ spec:
                 - path: "clusters/dir/dev/**/cluster-config.json"
               values:
                 selector: "{{ path.basename }}"
+                appName: "dir"
+          - git:
+              repoURL: "https://github.com/ramizpolic/dir-deploy"
+              revision: main
+              files:
+                - path: "clusters/dir/dev/**/cluster-config.json"
+              values:
+                selector: "{{ path.basename }}"
+                appName: "spire"
+          - git:
+              repoURL: "https://github.com/ramizpolic/dir-deploy"
+              revision: main
+              files:
+                - path: "clusters/dir/dev/**/cluster-config.json"
+              values:
+                selector: "{{ path.basename }}"
+                appName: "spire-crds"
   template:
     metadata:
-      name: "{{ values.selector }}-{{ appName }}-dev-argoapp"
+      name: "{{ values.selector }}-{{ values.appName }}-dev-argoapp"
       labels:
         cloud: "{{ values.selector }}"
         env: "dev"
-        app: "{{ appName }}"
+        app: "{{ values.appName }}"
     spec:
       project: "dir-dev"
       sources:
@@ -52,7 +78,7 @@ spec:
           helm:
             ignoreMissingValueFiles: true
             valueFiles:
-              - "$values/applications/{{ appName }}/dev/{{ values.selector }}/values.yaml"
+              - "$values/applications/{{ values.appName }}/dev/{{ values.selector }}/values.yaml"
         - repoURL: "https://github.com/ramizpolic/dir-deploy"
           targetRevision: main
           ref: values

@@ -10,7 +10,7 @@ spec:
   description: dir dev deployment
   destinations:
   - name: '*'
-    namespace: dir-dev
+    namespace: '*'
     server: https://127.0.0.1:53943
   - name: '*'
     namespace: argocd

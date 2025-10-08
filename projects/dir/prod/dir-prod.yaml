@@ -10,7 +10,7 @@ spec:
   description: dir prod deployment
   destinations:
   - name: '*'
-    namespace: dir-prod
+    namespace: '*'
     server: https://127.0.0.1:53943
   - name: '*'
     namespace: argocd
