@@ -8,15 +8,9 @@ spec:
     namespace: argocd
     server: https://kubernetes.default.svc
   project: "dir-prod"
-  sources:
-    - path: "applicationsets/spire-crds/prod"
-      repoURL: "https://github.com/ramizpolic/dir-deploy.git"
-      targetRevision: main
-    - path: "applicationsets/spire/prod"
-      repoURL: "https://github.com/ramizpolic/dir-deploy.git"
-      targetRevision: main
-    - path: "applicationsets/dir/prod"
-      repoURL: "https://github.com/ramizpolic/dir-deploy.git"
-      targetRevision: main
+  source:
+    path: "applicationsets/dir/prod"
+    repoURL: "https://github.com/ramizpolic/dir-deploy.git"
+    targetRevision: main
   syncPolicy:
     automated: {}

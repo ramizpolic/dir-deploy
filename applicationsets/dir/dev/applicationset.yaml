@@ -11,12 +11,21 @@ spec:
         mergeKeys:
           - values.selector
         generators:
+          ## Application configs
+          - list:
+              elements:
+                - appName: dir
+                  namespace: dir-dev
+                - appName: spire
+                  namespace: spire
+                - appName: spire-crds
+                  namespace: spire-crds
           ## Application Charts
           - git:
               repoURL: "https://github.com/ramizpolic/dir-deploy"
               revision: main
               files:
-                - path: "applications/dir/dev/**/config.json"
+                - path: "applications/{{ appName }}/dev/**/config.json"
               values:
                 selector: "{{ path.basename }}"
           ## Cluster Configurations
@@ -29,10 +38,11 @@ spec:
                 selector: "{{ path.basename }}"
   template:
     metadata:
-      name: "{{ values.selector }}-dir-dev-argoapp"
+      name: "{{ values.selector }}-{{ appName }}-dev-argoapp"
       labels:
         cloud: "{{ values.selector }}"
         env: "dev"
+        app: "{{ appName }}"
     spec:
       project: "dir-dev"
       sources:
@@ -42,13 +52,13 @@ spec:
           helm:
             ignoreMissingValueFiles: true
             valueFiles:
-              - "$values/applications/dir/dev/{{ values.selector }}/values.yaml"
+              - "$values/applications/{{ appName }}/dev/{{ values.selector }}/values.yaml"
         - repoURL: "https://github.com/ramizpolic/dir-deploy"
           targetRevision: main
           ref: values
       destination:
         server: "{{ cluster_address }}"
-        namespace: "dir-dev"
+        namespace: "{{ namespace }}"
       syncPolicy:
         automated:
           prune: false
