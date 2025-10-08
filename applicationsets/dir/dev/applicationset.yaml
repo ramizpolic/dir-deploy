@@ -10,44 +10,24 @@ spec:
         mergeKeys:
           - appName
         generators:
-          # First generator: app list with cluster config
-          - matrix:
-              generators:
-                - list:
-                    elements:
-                      - appName: dir
-                        namespace: dir-dev
-                      - appName: spire
-                        namespace: spire
-                      - appName: spire-crds
-                        namespace: spire-crds
-                - git:
-                    repoURL: "https://github.com/ramizpolic/dir-deploy"
-                    revision: main
-                    files:
-                      - path: "clusters/dir/dev/cluster-config.json"
-          # Second generator: individual app configs
+          - list:
+              elements:
+                - appName: dir
+                  namespace: dir-dev
+                - appName: spire
+                  namespace: spire
+                - appName: spire-crds
+                  namespace: spire-crds
           - git:
               repoURL: "https://github.com/ramizpolic/dir-deploy"
               revision: main
               files:
-                - path: "applications/dir/dev/config.json"
-              values:
-                appName: "dir"
+                - path: "clusters/dir/dev/cluster-config.json"
           - git:
               repoURL: "https://github.com/ramizpolic/dir-deploy"
               revision: main
               files:
-                - path: "applications/spire/dev/config.json"
-              values:
-                appName: "spire"
-          - git:
-              repoURL: "https://github.com/ramizpolic/dir-deploy"
-              revision: main
-              files:
-                - path: "applications/spire-crds/dev/config.json"
-              values:
-                appName: "spire-crds"
+                - path: "applications/{{ appName }}/dev/config.json"
   template:
     metadata:
       name: "{{ appName }}-dev-argoapp"
