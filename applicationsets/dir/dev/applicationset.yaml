@@ -2,8 +2,6 @@ apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
   name: "multi-component-dev-appset"
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
 spec:
   syncPolicy:
     preserveResourcesOnDeletion: false
@@ -55,10 +53,6 @@ spec:
         app: "{{ appName }}"
       annotations:
         argocd.argoproj.io/sync-wave: "{{ syncWave }}"
-        argocd.argoproj.io/finalizer: resources-finalizer.argocd.argoproj.io
-        argocd.argoproj.io/cascade: "foreground"
-      finalizers:
-        - resources-finalizer.argocd.argoproj.io
     spec:
       project: "dir-dev"
       sources:
@@ -83,5 +77,3 @@ spec:
           - CreateNamespace=true
           - ServerSideApply=true
           - RespectIgnoreDifferences=true
-          - PrunePropagationPolicy=foreground
-          - PruneLast=true
