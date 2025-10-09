@@ -1,6 +1,16 @@
-# dir-deploy
+# Directory Deployment
 
-Directory Public Deployment
+This repository contains the deployment manifests for AGNTCY Directory project.
+It is designed to be used with Argo CD for GitOps-style continuous deployment.
+
+The manifests are organized into two main sections:
+- `projects/`: Contains Argo CD project definitions.
+- `projectapps/`: Contains Argo CD application definitions.
+
+The project will deploy the following components:
+- `applications/dir` - AGNTCY Directory server
+- `applications/dir-admin` - AGNTCY Directory Admin CLI client
+- `applications/spire*` - SPIRE stack for identity and federation
 
 ## Quick Start
 
@@ -20,7 +30,7 @@ Argo CD in Kubernetes Kind cluster.
     kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
     ```
 
-3. Add Directory ArgoCD deployment:
+3. Deploy Directory via ArgoCD:
 
     ```bash
     # Add project
@@ -34,11 +44,11 @@ Argo CD in Kubernetes Kind cluster.
 4. Check results in ArgoCD UI:
 
    ```bash
+   # Retrieve password
+   kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d; echo
+
    # Port forward the ArgoCD API to localhost:8080
    kubectl port-forward svc/argocd-server -n argocd 8080:443
-
-   # Retrieve password
-   argocd admin initial-password -n argocd
    ```
 
    Login to the UI at [https://localhost:8080](https://localhost:8080) with username `admin` and the password retrieved above.
