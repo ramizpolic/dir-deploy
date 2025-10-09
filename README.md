@@ -12,6 +12,9 @@ The project will deploy the following components:
 - `applications/dir-admin` - AGNTCY Directory Admin CLI client
 - `applications/spire*` - SPIRE stack for identity and federation
 
+**NOTE**: This is not a production-ready deployment. It is
+provided as-is for demonstration and testing purposes.
+
 ## Onboarding
 
 To onboard a new environment to **Directory Public Staging Network**, check the
