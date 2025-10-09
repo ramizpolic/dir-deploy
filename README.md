@@ -24,7 +24,7 @@ Argo CD in Kubernetes Kind cluster.
 
     ```bash
     # Add project
-    kubectl apply -f https://raw.githubusercontent.com/ramizpolic/dir-deploy/main/projects/dir/appproject.yaml
+    kubectl apply -f https://raw.githubusercontent.com/ramizpolic/dir-deploy/main/projects/dir/project.yaml
 
     # Add application
     kubectl apply -f https://raw.githubusercontent.com/ramizpolic/dir-deploy/main/projectapps/dir/application.yaml
