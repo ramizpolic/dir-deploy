@@ -1,5 +1,7 @@
-# Example configuration with multiple cronjobs
-# This demonstrates how to configure multiple dirctl cronjobs
+# Copyright AGNTCY Contributors (https://github.com/agntcy)
+# SPDX-License-Identifier: Apache-2.0
+
+# Ref: https://github.com/agntcy/dir/blob/main/install/charts/dirctl/values.yaml
 
 # Global config
 global:
@@ -29,26 +31,6 @@ cronjobs:
     args:
       - "search"
 
-  # Push cronjob
-  push:
-    enabled: true
-    schedule: "* * * * *"
-    args:
-      - "push"
-      - "/examples/record.json"
-    volumes:
-      - name: record-json
-        configMap:
-          name: example-record
-          items:
-            - key: record.json
-              path: examples/record.json
-    volumeMounts:
-      - name: record-json
-        mountPath: /examples/record.json
-        subPath: examples/record.json
-        readOnly: true
-
 # SPIRE configuration
 spire:
   enabled: true
@@ -56,68 +38,7 @@ spire:
   federation: []
 
 # Config maps config (shared across all cronjobs)
-configMaps:
-  - name: example-record
-    data:
-      record.json: |
-        {
-          "name": "directory.agntcy.org/cisco/marketing-strategy-v3",
-          "version": "v3.0.0",
-          "schema_version": "v0.7.0",
-          "description": "Research agent for Cisco's marketing strategy.",
-          "authors": [
-            "Cisco Systems"
-          ],
-          "created_at": "2025-03-19T17:06:37Z",
-          "annotations": {
-            "key": "value"
-          },
-          "skills": [
-            {
-              "name": "natural_language_processing/natural_language_generation/text_completion",
-              "id": 10201
-            },
-            {
-              "name": "natural_language_processing/analytical_reasoning/problem_solving",
-              "id": 10702
-            }
-          ],
-          "locators": [
-            {
-              "type": "docker_image",
-              "url": "https://ghcr.io/agntcy/marketing-strategy"
-            }
-          ],
-          "domains": [
-            {
-              "name": "life_science/biotechnology"
-            }
-          ],
-          "modules": [
-            {
-              "name": "license",
-              "data": {
-                "header": "Copyright (c) 2025 Cisco and/or its affiliates.",
-                "license": "Apache-2.0"
-              }
-            },
-            {
-              "name": "runtime/framework",
-              "data": {
-                "name": "crewai",
-                "version": "0.55.2"
-              }
-            },
-            {
-              "name": "runtime/language",
-              "data": {
-                "type": "python",
-                "version": "\u003e=3.11,\u003c3.13"
-              }
-            }
-          ]
-        }
-
+configMaps: []
 
 # Service account config
 serviceAccount:

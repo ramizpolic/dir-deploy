@@ -1,3 +1,8 @@
+# Copyright AGNTCY Contributors (https://github.com/agntcy)
+# SPDX-License-Identifier: Apache-2.0
+
+# Ref: https://github.com/agntcy/dir/blob/main/install/charts/dir/values.yaml
+
 apiserver:
   image:
     repository: ghcr.io/agntcy/dir-apiserver

@@ -66,3 +66,10 @@ Argo CD in Kubernetes Kind cluster.
    ```bash
    kind delete cluster --name argo-dev
    ```
+
+## Copyright Notice
+
+[Copyright Notice and License](./LICENSE.md)
+
+Distributed under Apache 2.0 License. See LICENSE for more information.
+Copyright AGNTCY Contributors (https://github.com/agntcy)

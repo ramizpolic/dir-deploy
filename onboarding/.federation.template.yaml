@@ -1,4 +1,4 @@
-# Trust domain defines the namespace for all SPIFFE IDs
+# Trust Domain defines the namespace for all SPIFFE IDs
 # in this organization.
 trustDomain: example.com
 
@@ -6,10 +6,14 @@ trustDomain: example.com
 # address for the trust domain.
 bundleEndpointURL: https://spire.example.com
 
-# Bundle endpoint profile defines how to access the bundle endpoint.
+# Bundle Endpoint Profile defines how the data
+# is served by the Bundle Endpoint.
 bundleEndpointProfile:
   type: https_spiffe
   endpointSPIFFEID: spiffe://example.com/spire/server
+
+# Trust Domain Bundle defines public keys used to verify SVIDs
+# issued in this trust domain.
 trustDomainBundle: |-
   {
     "keys":[
