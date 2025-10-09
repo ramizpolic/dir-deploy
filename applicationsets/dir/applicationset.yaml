@@ -21,8 +21,8 @@ spec:
                 - appName: dir
                   namespace: dir
                   syncWave: "2"
-                - appName: dirctl
-                  namespace: dirctl
+                - appName: dir-admin
+                  namespace: dir-admin
                   syncWave: "3"
           - matrix:
               generators:
@@ -31,7 +31,7 @@ spec:
                       - appName: spire-crds
                       - appName: spire
                       - appName: dir
-                      - appName: dirctl
+                      - appName: dir-admin
                 - git:
                     repoURL: "https://github.com/ramizpolic/dir-deploy"
                     revision: main
@@ -44,7 +44,7 @@ spec:
                       - appName: spire-crds
                       - appName: spire
                       - appName: dir
-                      - appName: dirctl
+                      - appName: dir-admin
                 - git:
                     repoURL: "https://github.com/ramizpolic/dir-deploy"
                     revision: main
