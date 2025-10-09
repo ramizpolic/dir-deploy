@@ -1,0 +1,29 @@
+version: '3'
+
+tasks:
+  ##
+  ## General
+  ##
+  default:
+    cmds:
+      - task -l
+
+  gen:
+    desc: Generate manifests
+    cmds:
+      - task: gen:spire
+
+  gen:spire:
+    desc: Generate SPIRE federation manifests
+    vars:
+      SOURCE_PATH: "{{ .ROOT_DIR }}/onboarding/federation/*.yaml"
+      DEST_PATH: "{{ .ROOT_DIR }}/applications/dir/gen.federation.values.yaml"
+      PARENT_KEY: "apiserver.spire.federation"
+    cmds:
+     # Merge all files from onboarding/federation into one yaml file under key `apiserver.spire.federation`
+     # Use only default bash and taskfile tools - no jq, yq, etc.
+      - |
+        echo "{{ .PARENT_KEY }}:" > {{ .DEST_PATH }}
+        for file in $(ls {{ .SOURCE_PATH }}); do
+          echo "  - $(cat $file | sed 's/^/    /')" >> {{ .DEST_PATH }}
+        done
