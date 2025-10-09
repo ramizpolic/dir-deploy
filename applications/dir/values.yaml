@@ -28,6 +28,7 @@ apiserver:
 
         # Registry address to connect to
         registry_address: "dir-appset-dir-zot.dir.svc.cluster.local:5000"
+        
         # All data will be stored under this repo.
         # Objects are pushed as tags, manifests, and blobs.
         # repository_name: ""

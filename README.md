@@ -8,9 +8,14 @@ The manifests are organized into two main sections:
 - `projectapps/`: Contains Argo CD application definitions.
 
 The project will deploy the following components:
-- `applications/dir` - AGNTCY Directory server
+- `applications/dir` - AGNTCY Directory server with storage backend
 - `applications/dir-admin` - AGNTCY Directory Admin CLI client
 - `applications/spire*` - SPIRE stack for identity and federation
+
+## Onboarding
+
+To onboard a new environment to **Directory Public Staging Network**, check the
+[onboarding guide](onboarding/README.md).
 
 ## Quick Start
 

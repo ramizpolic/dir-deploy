@@ -24,6 +24,7 @@ spec:
                 - appName: dir-admin
                   namespace: dir-admin
                   syncWave: "3"
+          # Get cluster config to set the cluster address
           - matrix:
               generators:
                 - list:
@@ -37,6 +38,7 @@ spec:
                     revision: main
                     files:
                       - path: "clusters/dir/cluster-config.json"
+          # Get app config to set chart details
           - matrix:
               generators:
                 - list:
@@ -50,6 +52,20 @@ spec:
                     revision: main
                     files:
                       - path: "applications/{{ appName }}/config.json"
+          # Get all federation files - creates one app per file
+          # This is the closest to dynamic loading with pure ArgoCD
+          - matrix:
+              generators:
+                - list:
+                    elements:
+                      - appName: dir
+                - git:
+                    repoURL: "https://github.com/ramizpolic/dir-deploy"
+                    revision: main
+                    files:
+                      - path: "onboarding/federation/*.yaml"
+                    values:
+                      trustDomain: '{{.path.filenameNormalized}}'
   template:
     metadata:
       name: "dir-appset-{{ appName }}"
@@ -67,6 +83,10 @@ spec:
             ignoreMissingValueFiles: true
             valueFiles:
               - "$values/applications/{{ appName }}/values.yaml"
+            values: |
+              {{- if and (eq "dir" .appName) .trustDomain }}
+                apiserver.spire.federation: {{ .trustDomain }}
+              {{- end }}
         - repoURL: "https://github.com/ramizpolic/dir-deploy"
           targetRevision: main
           ref: values
