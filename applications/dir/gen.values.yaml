@@ -2,8 +2,7 @@
 apiserver:
   spire:
     federation:
-    -
-      trustDomain: dir.agntcy.org
+    - trustDomain: dir.agntcy.org
       bundleEndpointURL: https://spire.directory.agntcy.org
       bundleEndpointProfile:
         type: https_spiffe
@@ -29,12 +28,11 @@ apiserver:
               }
           ]
         }
-    -
-      trustDomain: dir.agntcy.org2
-      bundleEndpointURL: https://spire.directory.agntcy.org2
+    - trustDomain: dir2.agntcy.org
+      bundleEndpointURL: https://spire.directory2.agntcy.org
       bundleEndpointProfile:
         type: https_spiffe
-        endpointSPIFFEID: spiffe://dir.agntcy.org2/spire/server
+        endpointSPIFFEID: spiffe://dir2.agntcy.org/spire/server
       trustDomainBundle: |-
         {
           "keys":[
@@ -44,7 +42,7 @@ apiserver:
                 "n":"4QZMzOebMUKx6ZizUyxX2WZUZ8Qjt1yQWZi2WQwtVFAMjcyvawAXFbck15DYA4ENl906YEfuW6qUZLkfl8AAlg1TBdPN-VRGovfFWb9Jn3bs91ZF73MYAtGEVFeuYMUayoUIAVZojs6CMduletSVySB1oM4agd8nSQ0yVhPC8YOJO42wtpcYJIR7ksM3m1igociW4U9ry7Ic0jMRAbtv7A6Ax-r8beM0Pxa-uU4R5sTiI9WfbEZxXKyz6YWHsKh12QczNKAfB0TbIrouBJEr4yWRqH2SO29PiyNsOmdCy7lpnLDBf4Mglf0b-vyaEjGdLSWr0qoM6UfGVFAMCnwUjQ",
                 "e":"AQAB",
                 "x5c":[
-                    "MIIDvTCCAqWgAwIBAgIQE37/YSwYRF6lZ6xiaIRYQjANBgkqhkiG9w0BAQsFADBoMQ0wCwYDVQQGEwRBUlBBMRAwDgYDVQQKEwdFeGFtcGxlMRQwEgYDVQQDEwtleGFtcGxlLm9yZzEvMC0GA1UEBRMmMjU5MTQ3NDEwMzczMTYxNjI0NDQ2MDk0MjY0NzE4MjQ2NzY5MzAwHhcNMjUwOTI0MDk0NTM2WhcNMjUwOTI1MDk0NTQ2WjBoMQ0wCwYDVQQGEwRBUlBBMRAwDgYDVQQKEwdFeGFtcGxlMRQwEgYDVQQDEwtleGFtcGxlLm9yZzEvMC0GA1UEBRMmMjU5MTQ3NDEwMzczMTYxNjI0NDQ2MDk0MjY0NzE4MjQ2NzY5MzAwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDhBkzM55sxQrHpmLNTLFfZZlRnxCO3XJBZmLZZDC1UUAyNzK9rABcVtyTXkNgDgQ2X3TpgR+5bqpRkuR+XwACWDVMF0835VEai98VZv0mfduz3VkXvcxgC0YRUV65gxRrKhQgBVmiOzoIx26V61JXJIHWgzhqB3ydJDTJWE8Lxg4k7jbC2lxgkhHuSwzebWKChyJbhT2vLshzSMxEBu2/sDoDH6vxt4zQ/Fr65ThHmxOIj1Z9sRnFcrLPphYewqHXZBzM0oB8HRNsiui4EkSvjJZGofZI7b0+LI2w6Z0LLuWmcsMF/gyCV/Rv6/JoSMZ0tJavSqgzpR8ZUUAwKfBSNAgMBAAGjYzBhMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8EBTADAQH/MB0GA1UdDgQWBBStX3Yt5SrYqG5GHO1P76tXxXLOAjAfBgNVHREEGDAWhhRzcGlmZmU6Ly9kaXIuZXhhbXBsZTANBgkqhkiG9w0BAQsFAAOCAQEAd2CkRFP81k+QMN87eirJS4XVYrNYhJ+xWdJ530MUjtHJ6qRyKrpMAdjKwBfS/4xOnjPX4gv5lbv/H02+ySSj23aKRWk3sk4Hv3aiG/8ATVR4bmhcnfywENi7ceW9gYNmYrCkm7gUkW2mKUF6ociyDb41bq4xahuBQhOn/VuwlQlhX8yqz1X2DEtPr1VPMmoCmUQJZMPh+jxkAJCwDNrI1VoS6sjT9/mDrmcJKNx1TtwqT1q9BuU3oLVlPXm/Q38u/m+0M2lF6qaWj3KpwISl11kYMupIqjNC+YSjJeEnbKHs0QTvvNQPvpDukwFSX8GNYTmJlTbs3OnRi7ERrtb3ew=="
+                    "XIIDvTCCAqWgAwIBAgIQE37/YSwYRF6lZ6xiaIRYQjANBgkqhkiG9w0BAQsFADBoMQ0wCwYDVQQGEwRBUlBBMRAwDgYDVQQKEwdFeGFtcGxlMRQwEgYDVQQDEwtleGFtcGxlLm9yZzEvMC0GA1UEBRMmMjU5MTQ3NDEwMzczMTYxNjI0NDQ2MDk0MjY0NzE4MjQ2NzY5MzAwHhcNMjUwOTI0MDk0NTM2WhcNMjUwOTI1MDk0NTQ2WjBoMQ0wCwYDVQQGEwRBUlBBMRAwDgYDVQQKEwdFeGFtcGxlMRQwEgYDVQQDEwtleGFtcGxlLm9yZzEvMC0GA1UEBRMmMjU5MTQ3NDEwMzczMTYxNjI0NDQ2MDk0MjY0NzE4MjQ2NzY5MzAwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDhBkzM55sxQrHpmLNTLFfZZlRnxCO3XJBZmLZZDC1UUAyNzK9rABcVtyTXkNgDgQ2X3TpgR+5bqpRkuR+XwACWDVMF0835VEai98VZv0mfduz3VkXvcxgC0YRUV65gxRrKhQgBVmiOzoIx26V61JXJIHWgzhqB3ydJDTJWE8Lxg4k7jbC2lxgkhHuSwzebWKChyJbhT2vLshzSMxEBu2/sDoDH6vxt4zQ/Fr65ThHmxOIj1Z9sRnFcrLPphYewqHXZBzM0oB8HRNsiui4EkSvjJZGofZI7b0+LI2w6Z0LLuWmcsMF/gyCV/Rv6/JoSMZ0tJavSqgzpR8ZUUAwKfBSNAgMBAAGjYzBhMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8EBTADAQH/MB0GA1UdDgQWBBStX3Yt5SrYqG5GHO1P76tXxXLOAjAfBgNVHREEGDAWhhRzcGlmZmU6Ly9kaXIuZXhhbXBsZTANBgkqhkiG9w0BAQsFAAOCAQEAd2CkRFP81k+QMN87eirJS4XVYrNYhJ+xWdJ530MUjtHJ6qRyKrpMAdjKwBfS/4xOnjPX4gv5lbv/H02+ySSj23aKRWk3sk4Hv3aiG/8ATVR4bmhcnfywENi7ceW9gYNmYrCkm7gUkW2mKUF6ociyDb41bq4xahuBQhOn/VuwlQlhX8yqz1X2DEtPr1VPMmoCmUQJZMPh+jxkAJCwDNrI1VoS6sjT9/mDrmcJKNx1TtwqT1q9BuU3oLVlPXm/Q38u/m+0M2lF6qaWj3KpwISl11kYMupIqjNC+YSjJeEnbKHs0QTvvNQPvpDukwFSX8GNYTmJlTbs3OnRi7ERrtb3ew=="
                 ]
               },
               {
