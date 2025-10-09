@@ -68,8 +68,10 @@ spec:
           helm:
             ignoreMissingValueFiles: true
             valueFiles:
+              # Default values file
               - "$values/applications/{{ appName }}/values.yaml"
-              - "$values/applications/{{ appName }}/*.values.yaml"
+              # Generated values file, usually created by scripts
+              - "$values/applications/{{ appName }}/gen.values.yaml"
         - repoURL: "https://github.com/ramizpolic/dir-deploy"
           targetRevision: main
           ref: values
