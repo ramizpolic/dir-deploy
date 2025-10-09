@@ -17,6 +17,11 @@ image:
   pullPolicy: IfNotPresent
   pullSecrets: []
 
+# SPIRE configuration
+spire:
+  enabled: true
+  trustDomain: example.org
+
 # Additional environment variables (applied to all cronjobs)
 env:
   - name: DIRECTORY_CLIENT_SERVER_ADDRESS
@@ -30,39 +35,3 @@ cronjobs:
     schedule: "* * * * *"
     args:
       - "search"
-
-# SPIRE configuration
-spire:
-  enabled: true
-  trustDomain: example.org
-  federation: []
-
-# Config maps config (shared across all cronjobs)
-configMaps: []
-
-# Service account config
-serviceAccount:
-  create: false
-  annotations: {}
-  name: ""
-
-# Security context
-securityContext:
-  runAsNonRoot: true
-  runAsUser: 65532
-  readOnlyRootFilesystem: true
-
-# Default resource configuration (can be overridden per cronjob)
-resources:
-  limits:
-    cpu: 100m
-    memory: 128Mi
-  requests:
-    cpu: 50m
-    memory: 64Mi
-
-# Default volumes (can be extended per cronjob)
-volumes: []
-
-# Default volume mounts (can be extended per cronjob)
-volumeMounts: []

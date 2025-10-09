@@ -13,6 +13,11 @@ apiserver:
   service:
     type: NodePort
 
+  # SPIRE configuration
+  spire:
+    enabled: true
+    trustDomain: example.org
+
   config:
     # listen_address: "0.0.0.0:8888"
     # healthcheck_address: "0.0.0.0:8889"
@@ -97,11 +102,6 @@ apiserver:
       # Timeout for individual publication operations
       worker_timeout: "30m"
 
-  # SPIRE configuration
-  spire:
-    enabled: true
-    trustDomain: example.org
-
   # Extra volume mounts for the apiserver container
   extraVolumeMounts: 
   - name: zot-config-storage
@@ -116,17 +116,12 @@ apiserver:
 
   # Zot registry configuration (subchart)
   zot:
-    authHeader: "admin:admin"
     extraVolumeMounts: []
     extraVolumes: []
     
-    # Configure zot to use the config file from the shared mounted volume
-    # extraArgs:
-    #   - "serve"
-    #   - "/etc/zot/config.json"
-
     # ZOT secrets
     mountSecret: true
+    authHeader: "admin:admin"
     secretFiles:
       # Example htpasswd with 'admin:admin' & 'user:user' user:pass pairs
       htpasswd: |-
