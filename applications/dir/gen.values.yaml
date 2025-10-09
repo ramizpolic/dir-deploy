@@ -28,11 +28,11 @@ apiserver:
               }
           ]
         }
-    - trustDomain: dir.agntcy.org2
-      bundleEndpointURL: https://spire.directory.agntcy.org2
+    - trustDomain: dir.agntcy
+      bundleEndpointURL: https://spire.directory.agntcy
       bundleEndpointProfile:
         type: https_spiffe
-        endpointSPIFFEID: spiffe://dir.agntcy.org2/spire/server
+        endpointSPIFFEID: spiffe://dir.agntcy/spire/server
       trustDomainBundle: |-
         {
             "keys": [
