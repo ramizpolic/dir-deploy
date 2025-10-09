@@ -2,8 +2,7 @@
 apiserver:
   spire:
     federation:
-    -
-      trustDomain: dir.agntcy.org
+    - trustDomain: dir.agntcy.org
       bundleEndpointURL: https://spire.directory.agntcy.org
       bundleEndpointProfile:
         type: https_spiffe
@@ -29,8 +28,7 @@ apiserver:
               }
           ]
         }
-    -
-      trustDomain: dir.agntcy.org2
+    - trustDomain: dir.agntcy.org2
       bundleEndpointURL: https://spire.directory.agntcy.org2
       bundleEndpointProfile:
         type: https_spiffe
