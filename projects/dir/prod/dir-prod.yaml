@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: dir-prod
+  namespace: argocd
+spec:
+  description: AGNTCY Directory Project - Prod
+  destinations:
+  - name: '*'
+    namespace: '*'
+    server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+  - group: '*'
+    kind: '*'
+  namespaceResourceWhitelist:
+  - group: '*'
+    kind: '*'
+  sourceRepos:
+  - https://chartmuseum.prod.eticloud.io
+  - https://github.com/ramizpolic/dir-deploy
+  - https://spiffe.github.io/helm-charts-hardened
+  - ghcr.io
+status: {}

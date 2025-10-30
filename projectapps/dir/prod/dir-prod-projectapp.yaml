@@ -1,16 +1,13 @@
-# Copyright AGNTCY Contributors (https://github.com/agntcy)
-# SPDX-License-Identifier: Apache-2.0
-
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: "dir-app"
+  name: "dir-prod-projectapp"
   namespace: argocd
 spec:
-  project: "dir"
+  project: "dir-prod"
   source:
-    path: "applicationsets/dir"
-    repoURL: "https://github.com/ramizpolic/dir-deploy.git"
+    path: "applicationsets/dir/prod"
+    repoURL: "https://github.com/ramizpolic/dir-deploy"
     targetRevision: main
   destination:
     namespace: argocd

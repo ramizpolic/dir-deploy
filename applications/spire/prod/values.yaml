@@ -1,12 +1,9 @@
-# Copyright AGNTCY Contributors (https://github.com/agntcy)
-# SPDX-License-Identifier: Apache-2.0
-
 # Ref: https://github.com/spiffe/helm-charts-hardened/blob/main/charts/spire/values.yaml
 
 global:
   spire:
-    trustDomain: "example.org"
-
+    trustDomain: "prod.directory.outshift"
+    ingressControllerType: ingress-nginx
     tools:
       kubectl:
         tag: "v1.28.0"
@@ -20,6 +17,14 @@ global:
 spire-server:
   federation:
     enabled: true
+    ingress:
+      enabled: true
+      host: prod.spire.directory.outshift.test
 
   controllerManager:
     watchClassless: true
+
+spiffe-oidc-discovery-provider:
+  ingress:
+    enabled: true
+    host: prod.oidc-discovery-spire.directory.outshift.test

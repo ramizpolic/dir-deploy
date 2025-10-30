@@ -1,0 +1,21 @@
+# Ref: https://github.com/spiffe/helm-charts-hardened/blob/main/charts/spire/values.yaml
+
+global:
+  spire:
+    trustDomain: "dev.directory.outshift"
+    tools:
+      kubectl:
+        tag: "v1.28.0"
+
+  installAndUpgradeHooks:
+    enabled: false
+
+  deleteHooks:
+    enabled: false
+
+spire-server:
+  federation:
+    enabled: true
+
+  controllerManager:
+    watchClassless: true

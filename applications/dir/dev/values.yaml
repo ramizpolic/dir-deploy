@@ -1,0 +1,220 @@
+# Ref: https://github.com/agntcy/dir/blob/main/install/charts/dir/values.yaml
+
+apiserver:
+  log_level: DEBUG
+
+  image:
+    repository: ghcr.io/agntcy/dir-apiserver
+    tag: latest
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+  
+  # Expose the API server via NodePort
+  service:
+    type: NodePort
+
+  # Routing Service - NodePort for external P2P access
+  routingService:
+    # NodePort provides external access without LoadBalancer cost
+    type: NodePort
+    
+    # Fix the NodePort to a specific port (optional but recommended)
+    # Makes firewall rules and external configuration easier
+    nodePort: 30555  # Must be in range 30000-32767
+    
+    # Preserve source IPs for P2P (recommended)
+    externalTrafficPolicy: Local
+
+  # SPIRE configuration
+  spire:
+    enabled: true
+    trustDomain: dev.directory.outshift
+
+  config:
+    listen_address: "0.0.0.0:8888"
+
+    # Authentication settings (handles identity verification)
+    # Supports both X.509 (X.509-SVID) and JWT (JWT-SVID) authentication
+    authn:
+      # Enable authentication
+      enabled: true
+      # Authentication mode: "x509" or "jwt"
+      # - x509: Uses X.509-SVID from mutual TLS peer certificates
+      # - jwt: Uses JWT-SVID from Authorization header
+      mode: "x509"
+      # SPIFFE Workload API socket path (injected by SPIRE agent)
+      socket_path: "unix:///run/spire/agent-sockets/api.sock"
+      # Expected audiences for JWT validation (only used in JWT mode)
+      audiences:
+        - "spiffe://dev.directory.outshift/spire/server"
+
+    # Authorization settings (handles access control policies)
+    # Requires authentication to be enabled first
+    authz:
+      # Enable authorization policies
+      enabled: true
+      # Trust domain for this Directory server
+      # Used to distinguish internal (same trust domain) vs external requests
+      trust_domain: "dev.directory.outshift"
+
+    # Store settings for the storage backend.
+    store:
+      # Storage provider to use.
+      provider: "oci"
+
+      # OCI-backed store
+      oci:
+        # Path to a local directory that will be to hold data instead of remote.
+        # If this is set to non-empty value, only local store will be used.
+        # local_dir: ""
+
+        # Cache directory to use for metadata.
+        # cache_dir: ""
+
+        # Registry address to connect to
+        registry_address: "dir-dir-dev-argoapp-zot.dir-dev-dir.svc.cluster.local:5000"
+        
+        # All data will be stored under this repo.
+        # Objects are pushed as tags, manifests, and blobs.
+        # repository_name: ""
+
+        # Auth credentials to use.
+        auth_config:
+          insecure: "true"
+          username: "admin"
+          password: "admin"
+
+    # Routing settings for the peer-to-peer network.
+    routing:
+      # Address to use for routing
+      listen_address: "/ip4/0.0.0.0/tcp/5555"
+
+      # Path to private key file for peer ID.
+      # TODO: generate and mount via secret
+      # key_path: /etc/routing/node.privkey
+
+      # Path to the routing datastore
+      datastore_dir: /etc/routing/datastore
+
+      # Address of the Directory API server for sync operations
+      directory_api_address: dir-dir-dev-argoapp-apiserver.dir-dev-dir.svc.cluster.local:8888
+
+      # Nodes to use for bootstrapping of the DHT.
+      # We read initial routing tables here and get introduced
+      # to the network.
+      # bootstrap_peers:
+      #   - /ip4/1.1.1.1/tcp/1
+      #   - /ip4/1.1.1.1/tcp/2
+
+      # GossipSub configuration for efficient label announcements
+      # When enabled, labels are propagated via GossipSub mesh to ALL subscribed peers
+      # When disabled, falls back to DHT+Pull mechanism (higher bandwidth, limited reach)
+      # Default: true (recommended for production)
+      gossipsub:
+        enabled: true
+
+    # Sync configuration
+    sync:
+      # How frequently the scheduler checks for pending syncs
+      scheduler_interval: "30s"
+      
+      # Maximum number of sync workers running concurrently
+      worker_count: 1
+      
+      # Timeout for individual sync operations
+      worker_timeout: "10m"
+      
+      # Registry monitor configuration
+      registry_monitor:
+        check_interval: "30s"
+      
+      # Authentication configuration for sync operations
+      auth_config:
+        username: "user"
+        password: "user"
+
+    # Publication configuration
+    publication:
+      # How frequently the scheduler checks for pending publications
+      scheduler_interval: "1h"
+      
+      # Maximum number of publication workers running concurrently
+      worker_count: 1
+      
+      # Timeout for individual publication operations
+      worker_timeout: "30m"
+
+  # Extra volume mounts for the apiserver container
+  extraVolumeMounts: 
+  - name: zot-config-storage
+    mountPath: /etc/zot
+  - name: dir-routing-storage
+    mountPath: /etc/routing
+
+  # Extra volumes - shared between apiserver and zot for config hot reload
+  extraVolumes: 
+  - name: zot-config-storage
+    hostPath:
+      path: /opt/zot-config
+      type: DirectoryOrCreate
+  - name: dir-routing-storage
+    emptyDir: {}
+
+  # Zot registry configuration (subchart)
+  zot:
+    extraVolumeMounts: []
+    extraVolumes: []
+    
+    # ZOT secrets
+    mountSecret: true
+    authHeader: "admin:admin"
+    secretFiles:
+      # Example htpasswd with 'admin:admin' & 'user:user' user:pass pairs
+      htpasswd: |-
+        admin:$2y$05$vmiurPmJvHylk78HHFWuruFFVePlit9rZWGA/FbZfTEmNRneGJtha
+        user:$2y$05$L86zqQDfH5y445dcMlwu6uHv.oXFgT6AiJCwpv3ehr7idc0rI3S2G
+  
+    # Zot config
+    mountConfig: true
+    configFiles:
+      config.json: |-
+        {
+          "distSpecVersion": "1.1.1",
+          "storage": {
+            "rootDirectory": "/var/lib/registry"
+          },
+          "http": {
+            "address": "0.0.0.0",
+            "port": "5000",
+            "auth": {
+              "htpasswd": {
+                "path": "/secret/htpasswd"
+              }
+            },
+            "accessControl": {
+              "adminPolicy": {
+                  "users": ["admin"],
+                  "actions": ["read", "create", "update", "delete"]
+              },
+              "repositories": {
+                "**": {
+                  "anonymousPolicy": [],
+                  "defaultPolicy": ["read"]
+                }
+              }
+            }
+          },
+          "log": {
+            "level": "info"
+          },
+          "extensions": {
+            "search": {
+              "enable": true
+            },
+            "trust": {
+              "enable": true,
+              "cosign": true,
+              "notation": false
+            }
+          }
+        }

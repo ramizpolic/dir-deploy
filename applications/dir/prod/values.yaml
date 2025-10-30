@@ -1,26 +1,85 @@
-# Copyright AGNTCY Contributors (https://github.com/agntcy)
-# SPDX-License-Identifier: Apache-2.0
-
 # Ref: https://github.com/agntcy/dir/blob/main/install/charts/dir/values.yaml
 
 apiserver:
+  log_level: DEBUG
+
   image:
     repository: ghcr.io/agntcy/dir-apiserver
     tag: latest
     pullPolicy: IfNotPresent
     pullSecrets: []
   
-  service:
+  # Routing Service - NodePort for external P2P access
+  routingService:
+    # NodePort provides external access without LoadBalancer cost
     type: NodePort
+    
+    # Fix the NodePort to a specific port (optional but recommended)
+    # Makes firewall rules and external configuration easier
+    nodePort: 30555  # Must be in range 30000-32767
+    
+    # Preserve source IPs for P2P (recommended)
+    externalTrafficPolicy: Local
+
+  # Expose the API server with ClusterIP over Ingress
+  service:
+    type: ClusterIP
+
+  # Expose the API server via Ingress (with TLS passthrough)
+  ingress:
+    enabled: true
+    className: "nginx"
+    annotations:
+      # Enable SSL passthrough - ingress will NOT terminate TLS
+      nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+      # Backend protocol is gRPC over TLS (SPIFFE mTLS)
+      nginx.ingress.kubernetes.io/backend-protocol: "GRPCS"
+    hosts:
+      - host: prod.api.directory.outshift.test
+        http:
+          paths:
+            - path: /
+              pathType: ImplementationSpecific
+              backend:
+                service:
+                  name: dir-dir-prod-argoapp-apiserver
+                  port:
+                    number: 8888
+    tls:
+      - hosts:
+        - prod.api.directory.outshift.test 
 
   # SPIRE configuration
   spire:
     enabled: true
-    trustDomain: example.org
+    trustDomain: prod.directory.outshift
 
   config:
-    # listen_address: "0.0.0.0:8888"
-    # healthcheck_address: "0.0.0.0:8889"
+    listen_address: "0.0.0.0:8888"
+
+    # Authentication settings (handles identity verification)
+    # Supports both X.509 (X.509-SVID) and JWT (JWT-SVID) authentication
+    authn:
+      # Enable authentication
+      enabled: true
+      # Authentication mode: "x509" or "jwt"
+      # - x509: Uses X.509-SVID from mutual TLS peer certificates
+      # - jwt: Uses JWT-SVID from Authorization header
+      mode: "x509"
+      # SPIFFE Workload API socket path (injected by SPIRE agent)
+      socket_path: "unix:///run/spire/agent-sockets/api.sock"
+      # Expected audiences for JWT validation (only used in JWT mode)
+      audiences:
+        - "spiffe://prod.directory.outshift/spire/server"
+
+    # Authorization settings (handles access control policies)
+    # Requires authentication to be enabled first
+    authz:
+      # Enable authorization policies
+      enabled: true
+      # Trust domain for this Directory server
+      # Used to distinguish internal (same trust domain) vs external requests
+      trust_domain: "prod.directory.outshift"
 
     # Store settings for the storage backend.
     store:
@@ -37,7 +96,7 @@ apiserver:
         # cache_dir: ""
 
         # Registry address to connect to
-        registry_address: "dir-appset-dir-zot.dir.svc.cluster.local:5000"
+        registry_address: "prod.zot.directory.outshift.test"
         
         # All data will be stored under this repo.
         # Objects are pushed as tags, manifests, and blobs.
@@ -45,17 +104,24 @@ apiserver:
 
         # Auth credentials to use.
         auth_config:
-          insecure: "true"
+          insecure: "false"
           username: "admin"
           password: "admin"
 
     # Routing settings for the peer-to-peer network.
     routing:
       # Address to use for routing
-      # listen_address: "/ipv4/0.0.0.0/tcp/5555"
+      listen_address: "/ip4/0.0.0.0/tcp/5555"
 
       # Path to private key file for peer ID.
-      # key_path: /tmp/agntcy-dir/node.privkey
+      # TODO: generate and mount via secret
+      # key_path: /etc/routing/node.privkey
+
+      # Path to the routing datastore
+      datastore_dir: /etc/routing/datastore
+
+      # Address of the Directory API server for sync operations
+      directory_api_address: prod.api.directory.outshift.test
 
       # Nodes to use for bootstrapping of the DHT.
       # We read initial routing tables here and get introduced
@@ -102,10 +168,19 @@ apiserver:
       # Timeout for individual publication operations
       worker_timeout: "30m"
 
+  # Extra environment variables for the apiserver container
+  extraEnv:
+  - name: SSL_CERT_DIR
+    value: "/etc/ca-certs"
+
   # Extra volume mounts for the apiserver container
   extraVolumeMounts: 
   - name: zot-config-storage
     mountPath: /etc/zot
+  - name: dir-routing-storage
+    mountPath: /etc/routing
+  - name: dir-ca-certs
+    mountPath: /etc/ca-certs
 
   # Extra volumes - shared between apiserver and zot for config hot reload
   extraVolumes: 
@@ -113,9 +188,33 @@ apiserver:
     hostPath:
       path: /opt/zot-config
       type: DirectoryOrCreate
+  - name: dir-routing-storage
+    emptyDir: {}
+  - name: dir-ca-certs
+    # mount from secret prod-zot-directory-outshift-test-tls to /etc/routing/node.cert
+    secret:
+      secretName: prod-zot-directory-outshift-test-tls
+      items:
+      - key: ca.crt
+        path: zot-ca.crt
 
   # Zot registry configuration (subchart)
   zot:
+    ingress:
+      enabled: true
+      className: "nginx"
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt
+      hosts:
+        - host: prod.zot.directory.outshift.test
+          paths:
+            - path: /
+              pathType: ImplementationSpecific
+      tls:
+        - secretName: prod-zot-directory-outshift-test-tls # legit:ignore
+          hosts:
+            - prod.zot.directory.outshift.test
+
     extraVolumeMounts: []
     extraVolumes: []
     
