@@ -207,7 +207,6 @@ with the Directory Server, follow these steps:
 1. Create a SPIFFE SVID for local Directory Client
 
 ```bash
-# For dev environment, same applies for prod environment with appropriate names
 kubectl exec spire-dir-dev-argoapp-server-0 -n dir-dev-spire -c spire-server -- \
    /opt/spire/bin/spire-server x509 mint \
    -dns dev.api.directory.outshift.test \
@@ -219,7 +218,7 @@ kubectl exec spire-dir-dev-argoapp-server-0 -n dir-dev-spire -c spire-server -- 
 
 ```bash
 # Set authentication method to token
-export DIRECTORY_CLIENT_AUTH_METHOD="token"
+export DIRECTORY_CLIENT_AUTH_MODE="token"
 export DIRECTORY_CLIENT_SPIFFE_TOKEN="spiffe-dev.json"
 
 # If connecting via Ingress, use:
@@ -227,6 +226,7 @@ export DIRECTORY_CLIENT_SERVER_ADDRESS="dev.api.directory.outshift.test:443"
 
 # If connecting via port-forward, use:
 export DIRECTORY_CLIENT_SERVER_ADDRESS="127.0.0.1:8888"
+export DIRECTORY_CLIENT_TLS_SKIP_VERIFY="true"
 ```
 
 3. (optional) Port-forward Directory Server to localhost
@@ -235,13 +235,6 @@ If you want to connect to Directory Server via port-forwarding,
 perhaps without Ingress, run the following commands:
 
 ```bash
-# Set server address to localhost
-export DIRECTORY_CLIENT_SERVER_ADDRESS="127.0.0.1:8888"
-
-# Skip TLS verification for port-forwarding
-export DIRECTORY_CLIENT_TLS_SKIP_VERIFY="true"
-
-# Port-forward
 kubectl port-forward svc/dir-dir-dev-argoapp-apiserver -n dir-dev-dir 8888:8888
 ```
 
@@ -249,6 +242,9 @@ kubectl port-forward svc/dir-dir-dev-argoapp-apiserver -n dir-dev-dir 8888:8888
 ```bash
 dirctl info baeareiesad3lyuacjirp6gxudrzheltwbodtsg7ieqpox36w5j637rchwq
 ```
+
+**NOTE:** The above examples works for `dev` environment.
+For `prod` environment, replace `dev` with `prod` in all commands.
 
 ## Copyright Notice
 

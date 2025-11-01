@@ -1,7 +1,7 @@
 # Ref: https://github.com/agntcy/dir/blob/main/install/charts/dir/values.yaml
 
 apiserver:
-  log_level: DEBUG
+  log_level: INFO
 
   image:
     repository: ghcr.io/agntcy/dir-apiserver
