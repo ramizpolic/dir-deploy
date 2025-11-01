@@ -9,19 +9,14 @@ apiserver:
     pullPolicy: IfNotPresent
     pullSecrets: []
   
-  # Expose the API server via NodePort
+  # Expose the DIR API via NodePort for external access
   service:
     type: NodePort
 
-  # Routing Service - NodePort for external P2P access
+  # Expose the P2P API via NodePort for external access
   routingService:
-    # NodePort provides external access without LoadBalancer cost
     type: NodePort
-    
-    # Fix the NodePort to a specific port (optional but recommended)
-    # Makes firewall rules and external configuration easier
-    nodePort: 30555  # Must be in range 30000-32767
-    
+    nodePort: 30555
     # Preserve source IPs for P2P (recommended)
     externalTrafficPolicy: Local
 
@@ -30,6 +25,7 @@ apiserver:
     enabled: true
     trustDomain: dev.directory.outshift
 
+  # API server configuration
   config:
     listen_address: "0.0.0.0:8888"
 
@@ -151,12 +147,14 @@ apiserver:
   - name: dir-routing-storage
     mountPath: /etc/routing
 
-  # Extra volumes - shared between apiserver and zot for config hot reload
+  # Extra volumes
   extraVolumes: 
+  # Zot config storage volume for config hot-reloading
   - name: zot-config-storage
     hostPath:
       path: /opt/zot-config
       type: DirectoryOrCreate
+  # Routing storage volume for peer-to-peer data
   - name: dir-routing-storage
     emptyDir: {}
 

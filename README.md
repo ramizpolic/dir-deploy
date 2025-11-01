@@ -28,7 +28,7 @@ Argo CD in Kubernetes Minikube cluster.
 1. Create Minikube cluster
 
 ```bash
-minikube start
+minikube start -p dir-dev
 ```
 
 2. Install Argo CD in the cluster
@@ -69,13 +69,11 @@ Verify deployment by checking the results of CronJobs in `dir-admin` application
 5. Clean up
 
 ```bash
-minikube delete
+minikube delete -p dir-dev
 ```
 
-### Production Setup
-
-**NOTE:** It is not recommended to deploy both dev and prod environments
-in the same cluster, as they may conflict with each other.
+<details>
+<summary><strong>Production Setup</strong></summary>
 
 If you wish to deploy production-grade setup with
 your own domains and Ingress capabilities on top,
@@ -84,15 +82,15 @@ follow these steps:
 1. Create Minikube cluster
 
 ```bash
-minikube start
+minikube start -p dir-prod
 ```
 
 2. (optional) Enable Ingress and DNS addons in Minikube
 
 ```bash
 # Enable Ingress and Ingress-DNS addons
-minikube addons enable ingress
-minikube addons enable ingress-dns
+minikube addons enable ingress -p dir-prod
+minikube addons enable ingress-dns -p dir-prod
 
 # Patch Ingress controller to enable SSL Passthrough
 kubectl patch deployment -n ingress-nginx ingress-nginx-controller --type='json' \
@@ -193,8 +191,13 @@ Verify deployment by checking the results of CronJobs in `dir-admin` application
 8. Clean up
 
 ```bash
-minikube delete
+minikube delete -p dir-prod
 ```
+
+**NOTE:** It is not recommended to deploy both dev and prod environments
+in the same cluster, as they may conflict with each other.
+
+</details>
 
 ## Using tokens with local Directory Client
 
@@ -227,6 +230,9 @@ export DIRECTORY_CLIENT_SERVER_ADDRESS="127.0.0.1:8888"
 ```
 
 3. (optional) Port-forward Directory Server to localhost
+
+If you want to connect to Directory Server via port-forwarding,
+perhaps without Ingress, run the following commands:
 
 ```bash
 # Set server address to localhost

@@ -8,24 +8,19 @@ apiserver:
     tag: latest
     pullPolicy: IfNotPresent
     pullSecrets: []
-  
-  # Routing Service - NodePort for external P2P access
+
+  # Expose the P2P API via NodePort for external access
   routingService:
-    # NodePort provides external access without LoadBalancer cost
     type: NodePort
-    
-    # Fix the NodePort to a specific port (optional but recommended)
-    # Makes firewall rules and external configuration easier
-    nodePort: 30555  # Must be in range 30000-32767
-    
+    nodePort: 30555
     # Preserve source IPs for P2P (recommended)
     externalTrafficPolicy: Local
 
-  # Expose the API server with ClusterIP over Ingress
+  # Expose the DIR API via ClusterIP for internal access
   service:
     type: ClusterIP
 
-  # Expose the API server via Ingress (with TLS passthrough)
+  # Expose the DIR API via Ingress for external access (with TLS passthrough)
   ingress:
     enabled: true
     className: "nginx"
@@ -54,6 +49,7 @@ apiserver:
     enabled: true
     trustDomain: prod.directory.outshift
 
+  # API server configuration
   config:
     listen_address: "0.0.0.0:8888"
 
@@ -96,6 +92,7 @@ apiserver:
         # cache_dir: ""
 
         # Registry address to connect to
+        # Use the external address of the Zot registry
         registry_address: "prod.zot.directory.outshift.test"
         
         # All data will be stored under this repo.
@@ -121,11 +118,11 @@ apiserver:
       datastore_dir: /etc/routing/datastore
 
       # Address of the Directory API server for sync operations
-      directory_api_address: prod.api.directory.outshift.test
+      # Use the external address of the API server
+      directory_api_address: prod.api.directory.outshift.test:443
 
       # Nodes to use for bootstrapping of the DHT.
-      # We read initial routing tables here and get introduced
-      # to the network.
+      # Since we are the bootstrap node, this can be left empty.
       # bootstrap_peers:
       #   - /ip4/1.1.1.1/tcp/1
       #   - /ip4/1.1.1.1/tcp/2
@@ -168,7 +165,8 @@ apiserver:
       # Timeout for individual publication operations
       worker_timeout: "30m"
 
-  # Extra environment variables for the apiserver container
+  # Extra environment variables for the apiserver container.
+  # Add ZOT CA certs here for OCI registry TLS verification.
   extraEnv:
   - name: SSL_CERT_DIR
     value: "/etc/ca-certs"
@@ -182,16 +180,18 @@ apiserver:
   - name: dir-ca-certs
     mountPath: /etc/ca-certs
 
-  # Extra volumes - shared between apiserver and zot for config hot reload
+  # Extra volumes
   extraVolumes: 
+  # Zot config storage volume for config hot-reloading
   - name: zot-config-storage
     hostPath:
       path: /opt/zot-config
       type: DirectoryOrCreate
+  # Routing storage volume for peer-to-peer data
   - name: dir-routing-storage
     emptyDir: {}
+  # CA certs for Zot registry TLS verification
   - name: dir-ca-certs
-    # mount from secret prod-zot-directory-outshift-test-tls to /etc/routing/node.cert
     secret:
       secretName: prod-zot-directory-outshift-test-tls
       items:
@@ -200,6 +200,7 @@ apiserver:
 
   # Zot registry configuration (subchart)
   zot:
+    # Expose the Zot registry via Ingress for external access (with TLS termination)
     ingress:
       enabled: true
       className: "nginx"
