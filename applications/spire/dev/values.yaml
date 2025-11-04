@@ -14,6 +14,8 @@ global:
     enabled: false
 
 spire-server:
+  caTTL: "8760h" # 1 year
+  
   federation:
     enabled: true
 
