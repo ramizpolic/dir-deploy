@@ -5,7 +5,7 @@ apiserver:
 
   image:
     repository: ghcr.io/agntcy/dir-apiserver
-    tag: latest
+    tag: v0.4.0
     pullPolicy: IfNotPresent
     pullSecrets: []
 
